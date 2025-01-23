@@ -1,0 +1,42 @@
+# backend/app/utils/analysis_utils.py
+
+import numpy as np
+from typing import List, Dict, Any
+import pandas as pd
+
+def calculate_cluster_statistics(df: pd.DataFrame, clusters: np.ndarray) -> List[Dict[str, Any]]:
+    """Calculate detailed statistics for each cluster"""
+    stats = []
+    
+    for i in np.unique(clusters):
+        cluster_data = df[clusters == i]
+        
+        stats.append({
+            'cluster_id': i,
+            'size': len(cluster_data),
+            'mean_consumption': cluster_data.mean().to_dict(),
+            'std_consumption': cluster_data.std().to_dict(),
+            'max_consumption': cluster_data.max().to_dict(),
+            'min_consumption': cluster_data.min().to_dict()
+        })
+    
+    return stats
+
+def calculate_seasonal_patterns(df: pd.DataFrame) -> Dict[str, Any]:
+    """Calculate seasonal consumption patterns"""
+    
+    # Define seasons (for Southern Hemisphere)
+    seasons = {
+        'Summer': ['Dec', 'Jan', 'Feb'],
+        'Autumn': ['Mar', 'Apr', 'May'],
+        'Winter': ['Jun', 'Jul', 'Aug'],
+        'Spring': ['Sep', 'Oct', 'Nov']
+    }
+    
+    seasonal_patterns = {}
+    
+    for season, months in seasons.items():
+        season_cols = [col for col in df.columns if any(f"_{month}_" in col for month in months)]
+        seasonal_patterns[season] = df[season_cols].mean().mean()
+    
+    return seasonal_patterns

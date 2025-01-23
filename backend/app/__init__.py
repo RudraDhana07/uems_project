@@ -25,13 +25,12 @@ def create_app():
     db.init_app(app)
     
     # Import and register blueprints
-    from .routes import auckland_routes, steam_mthw_routes, janitza_routes, lthw_routes, gas_routes,gas_analysis_routes
+    from .routes import auckland_routes, steam_mthw_routes, janitza_routes, lthw_routes, gas_routes
     app.register_blueprint(auckland_routes.bp)
     app.register_blueprint(steam_mthw_routes.bp)
     app.register_blueprint(janitza_routes.bp)
     app.register_blueprint(lthw_routes.bp)
     app.register_blueprint(gas_routes.bp)
-    app.register_blueprint(gas_analysis_routes.gas_analysis)
     
     
     # Create database tables
