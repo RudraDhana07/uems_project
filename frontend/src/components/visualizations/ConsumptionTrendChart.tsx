@@ -18,9 +18,9 @@ interface TrendChartProps {
 const ConsumptionTrendChart: React.FC<TrendChartProps> = ({ data }) => {
   const chartData = data.map(item => ({
     date: `${item.month} ${item.year}`,
-    mthw: item.mthw_consumption_kwh,
-    medSchool: item.med_school_consumption_kwh,
-    totalSteam: item.total_steam_consumption_kwh
+    mthw: item.mthw_consumption_kwh ? Number(Number(item.mthw_consumption_kwh).toFixed(2)) : null,
+    medSchool: item.med_school_consumption_kwh ? Number(Number(item.med_school_consumption_kwh).toFixed(2)) : null,
+    totalSteam: item.total_steam_consumption_kwh ? Number(Number(item.total_steam_consumption_kwh).toFixed(2)) : null
   }));
 
   return (
@@ -37,16 +37,19 @@ const ConsumptionTrendChart: React.FC<TrendChartProps> = ({ data }) => {
             textAnchor="end"
             height={70}
           />
-          <YAxis />
-          <Tooltip />
+          <YAxis tickFormatter={(value) => value.toFixed(2)} />
+          <Tooltip 
+            formatter={(value: number) => value.toFixed(2)}
+            labelFormatter={(label) => `Month: ${label}`}
+          />
           <Legend />
           <Line
             type="monotone"
             dataKey="mthw"
             name="MTHW Consumption"
             stroke="#8884d8"
-            strokeWidth={2.5}  // Even thicker line
-            strokeOpacity={0.6}  // Optional: add some transparency
+            strokeWidth={2.5}
+            strokeOpacity={0.6}
             dot={false}
           />
           <Line
@@ -54,8 +57,8 @@ const ConsumptionTrendChart: React.FC<TrendChartProps> = ({ data }) => {
             dataKey="medSchool"
             name="Med School Consumption"
             stroke="#82ca9d"
-            strokeWidth={2.5}  // Even thicker line
-            strokeOpacity={0.6}  // Optional: add some transparency
+            strokeWidth={2.5}
+            strokeOpacity={0.6}
             dot={false}
           />
           <Line
@@ -63,8 +66,8 @@ const ConsumptionTrendChart: React.FC<TrendChartProps> = ({ data }) => {
             dataKey="totalSteam"
             name="Total Steam Consumption"
             stroke="#ff7300"
-            strokeWidth={2.5}  // Even thicker line
-            strokeOpacity={0.6}  // Optional: add some transparency
+            strokeWidth={2.5}
+            strokeOpacity={0.6}
             dot={false}
           />
         </LineChart>

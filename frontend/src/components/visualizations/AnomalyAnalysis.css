@@ -1,0 +1,33 @@
+.anomaly-analysis {
+  padding: 20px;
+}
+
+.meter-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.meter-section table {
+  width: 100%;
+  margin-bottom: 20px;
+  border-collapse: collapse;
+}
+
+.meter-section th,
+.meter-section td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  text-align: right;
+}
+
+.meter-section th {
+  background-color: #f5f5f5;
+  text-align: center;
+}
+
+.highlighted {
+  color: #d32f2f;
+  font-weight: bold;
+}

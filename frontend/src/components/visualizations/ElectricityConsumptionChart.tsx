@@ -52,14 +52,14 @@ const ElectricityConsumptionChart: React.FC<ChartProps> = ({ data }) => {
     'Jan_2025', 'Feb_2025', 'Mar_2025'
   ];
 
-  // Transform data using the column order
+  // Transform data using the column order and round to 2 decimal places
   const chartData = columnOrder
     .map(month => ({
       date: month.replace('_', ' '),
       consumption: nullValueMonths.includes(month) ? null :
                   (electricityData[0][month] !== null && 
                    electricityData[0][month] !== undefined ? 
-                   Number(electricityData[0][month]) : null)
+                   Number(Number(electricityData[0][month]).toFixed(2)) : null)
     }))
     .filter(item => item.consumption !== null);
 
@@ -82,19 +82,22 @@ const ElectricityConsumptionChart: React.FC<ChartProps> = ({ data }) => {
             height={70}
             interval={2}
           />
-          <YAxis />
-          <Tooltip />
+          <YAxis tickFormatter={(value) => value.toFixed(2)} />
+          <Tooltip 
+            formatter={(value: number) => value.toFixed(2)}
+            labelFormatter={(label) => `Month: ${label}`}
+          />
           <Legend />
           <Line
             type="monotone"
             dataKey="consumption"
             name="XA05 Manukau Dental  - kWh"
             stroke="#8884d8"
-            strokeWidth={4}  // Even thicker line
-            strokeOpacity={0.7}  // Optional: add some transparency
-            dot={{ stroke: '#8884d8', strokeWidth: 2, r: 4 }}  // Optional: customize dots
+            strokeWidth={4}
+            strokeOpacity={0.7}
+            dot={{ stroke: '#8884d8', strokeWidth: 2, r: 4 }}
             connectNulls={true}
-            />
+          />
         </LineChart>
       </ResponsiveContainer>
     </div>

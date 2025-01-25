@@ -13,7 +13,7 @@ interface DataTableProps {
   isLoading: boolean;
 }
 
-const tableStyles = {
+export const tableStyles = {
   container: {
     margin: '20px',
     overflowX: 'auto' as const,
@@ -68,7 +68,7 @@ const formatNumber = (value: number | null | undefined): string => {
   }).format(value);
 };
 
-const DataTable: React.FC<DataTableProps> = ({ data, title, isLoading }) => {
+export const DataTable: React.FC<DataTableProps> = ({ data, title, isLoading }) => {
   if (isLoading) return <div>Loading...</div>;
   if (!data || data.length === 0) return <div>No data available</div>;
 
