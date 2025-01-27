@@ -94,10 +94,13 @@ class StreamElecProcessor:
         data['ring_main_2_pf'] = df.iloc[0:51, 5].apply(to_float_or_none)
         data['ring_main_3_kwh'] = df.iloc[0:51, 6].apply(to_float_or_none)
         data['ring_main_3_pf'] = df.iloc[0:51, 7].apply(to_float_or_none)
-        data['ring_mains_total_kwh'] = df.iloc[0:51, 82].apply(to_float_or_none)
-    
+        # Calculate total with proper null handling
+        data['ring_mains_total_kwh'] = data.apply(
+            lambda row: float(row['ring_main_1_mp4889_kwh'] or 0) + 
+                    float(row['ring_main_2_kwh'] or 0) + 
+                    float(row['ring_main_3_kwh'] or 0), axis=1)
         return data
-
+    
     def _process_libraries(self, stream_df: pd.DataFrame, janitza_df: pd.DataFrame, 
                       months: list, years: list) -> pd.DataFrame:
         data = pd.DataFrame()
@@ -132,9 +135,14 @@ class StreamElecProcessor:
         data['isb_west_excluding_shops'] = isb_west_data.apply(to_float_or_none)
         data['richardson_library_block_rising_main'] = richardson_data.apply(to_float_or_none)
         
-        # Total from Stream Elec Data with null handling
-        data['libraries_total_kwh'] = stream_df.iloc[0:51, 83].apply(to_float_or_none)
-        
+        # Calculate total with proper null handling
+        data['libraries_total_kwh'] = data.apply(
+            lambda row: float(row['hocken_library_kwh'] or 0) + 
+                    float(row['robertson_library_kwh'] or 0) + 
+                    float(row['bill_robertson_library_msb'] or 0)+
+                    float(row['sayers_adams_msb'] or 0) + 
+                    float(row['isb_west_excluding_shops'] or 0) +
+                    float(row['richardson_library_block_rising_main'] or 0), axis=1)
         return data
 
 
@@ -174,16 +182,26 @@ class StreamElecProcessor:
         data['portobello_marine_lab_kwh'] = stream_df.iloc[0:51, 76].apply(to_float_or_none)
         data['portobello_marine_lab_pf'] = stream_df.iloc[0:51, 77].apply(to_float_or_none)
         
-        # Janitza data columns with null handling
-        janitza_data = self._get_janitza_column_data(janitza_df, 398).apply(to_float_or_none)
-        data['geology_north'] = janitza_data
+        geology_north_data = janitza_df.iloc[398, 2:53].reset_index(drop=True)  # C to AO
+        geology_south_data = janitza_df.iloc[399, 2:53].reset_index(drop=True)  # C to AO
+
+        # Add Janitza columns with null handling
+        data['geology_north'] = geology_north_data.apply(to_float_or_none)
+        data['geology_south'] = geology_south_data.apply(to_float_or_none)
         
-        janitza_data = self._get_janitza_column_data(janitza_df, 399).apply(to_float_or_none)
-        data['geology_south'] = janitza_data
-        
-        # Total with null handling
-        data['science_total_kwh'] = stream_df.iloc[0:51, 84].apply(to_float_or_none)
-        
+        # Calculate total with proper null handling
+        data['science_total_kwh'] = data.apply(
+            lambda row: float(row['survey_marine_kwh'] or 0) + 
+                    float(row['zoology_buildings_kwh'] or 0) + 
+                    float(row['botany_tin_hut_kwh'] or 0) +
+                    float(row['physical_education_kwh'] or 0) + 
+                    float(row['owheo_building_kwh'] or 0) +
+                    float(row['mellor_laboratories_kwh'] or 0) + 
+                    float(row['microbiology_kwh'] or 0) + 
+                    float(row['science_2_kwh'] or 0) +
+                    float(row['portobello_marine_lab_kwh'] or 0) + 
+                    float(row['geology_north'] or 0) +
+                    float(row['geology_south'] or 0), axis=1)
         return data
 
 
@@ -214,8 +232,15 @@ class StreamElecProcessor:
         data['physiotherapy_pf'] = df.iloc[0:51, 29].apply(to_float_or_none)
         data['research_support_facility_kwh'] = df.iloc[0:51, 32].apply(to_float_or_none)
         data['research_support_facility_pf'] = df.iloc[0:51, 33].apply(to_float_or_none)
-        data['health_science_total_kwh'] = df.iloc[0:51, 85].apply(to_float_or_none)
         
+         # Calculate total with proper null handling
+        data['health_science_total_kwh'] = data.apply(
+            lambda row: float(row['taieri_farm_kwh'] or 0) + 
+                    float(row['med_school_sub_main_kwh'] or 0) + 
+                    float(row['dental_school_kwh'] or 0) +
+                    float(row['hunter_centre_kwh'] or 0) + 
+                    float(row['physiotherapy_kwh'] or 0) +
+                    float(row['research_support_facility_kwh'] or 0), axis=1)
         return data
 
 
@@ -238,21 +263,27 @@ class StreamElecProcessor:
         data['education_main_boiler_room_kwh'] = stream_df.iloc[0:51, 50].apply(to_float_or_none)
         data['education_main_boiler_room_pf'] = stream_df.iloc[0:51, 51].apply(to_float_or_none)
         
-        # Janitza data columns with null handling
-        janitza_data = self._get_janitza_column_data(janitza_df, 252).apply(to_float_or_none)
-        data['richardson_mains'] = janitza_data
-        
-        janitza_data = self._get_janitza_column_data(janitza_df, 268).apply(to_float_or_none)
-        data['arts_1_submains_msb'] = janitza_data
-        
-        janitza_data = self._get_janitza_column_data(janitza_df, 267).apply(to_float_or_none)
-        data['albany_leith_walk'] = janitza_data
-        
-        janitza_data = self._get_janitza_column_data(janitza_df, 401).apply(to_float_or_none)
-        data['archway_buildings'] = janitza_data
+        richardson_data = janitza_df.iloc[252, 2:53].reset_index(drop=True)  # C to AO
+        arts_1_data = janitza_df.iloc[268, 2:53].reset_index(drop=True)     # C to AO
+        albany_data = janitza_df.iloc[267, 2:53].reset_index(drop=True)     # C to AO
+        archway_data = janitza_df.iloc[401, 2:53].reset_index(drop=True)    # C to AO
+
+        # Add Janitza columns with null handling
+        data['richardson_mains'] = richardson_data.apply(to_float_or_none)
+        data['arts_1_submains_msb'] = arts_1_data.apply(to_float_or_none)
+        data['albany_leith_walk'] = albany_data.apply(to_float_or_none)
+        data['archway_buildings'] = archway_data.apply(to_float_or_none)
         
         # Total with null handling
-        data['humanities_total_kwh'] = stream_df.iloc[0:51, 86].apply(to_float_or_none)
+        data['humanities_total_kwh'] = stream_df.iloc[0:51, 87].apply(to_float_or_none)
+
+         # Calculate total with proper null handling
+        data['humanities_total_kwh'] = data.apply(
+            lambda row: float(row['education_main_boiler_room_kwh'] or 0) + 
+                    float(row['richardson_mains'] or 0) + 
+                    float(row['arts_1_submains_msb'] or 0)+
+                    float(row['albany_leith_walk'] or 0) + 
+                    float(row['archway_buildings'] or 0), axis=1)
         
         return data
 
@@ -272,24 +303,29 @@ class StreamElecProcessor:
             except (ValueError, TypeError):
                 return None
         
-        # Janitza data columns with null handling
-        janitza_data = self._get_janitza_column_data(janitza_df, 278).apply(to_float_or_none)
-        data['business_incomer_1_lower'] = janitza_data
+        # Process Janitza data columns
+        # Extract the required rows from Janitza data and transpose them
+        business_incomer_1_data = janitza_df.iloc[278, 2:53].reset_index(drop=True)  # C to AO
+        business_incomer_2_data = janitza_df.iloc[279, 2:53].reset_index(drop=True)  # C to AO
+        psychology_data = janitza_df.iloc[297, 2:53].reset_index(drop=True)          # C to AO
         
-        janitza_data = self._get_janitza_column_data(janitza_df, 279).apply(to_float_or_none)
-        data['business_incomer_2_upper'] = janitza_data
+        # Add Janitza columns with null handling
+        data['business_incomer_1_lower'] = business_incomer_1_data.apply(to_float_or_none)
+        data['business_incomer_2_upper'] = business_incomer_2_data.apply(to_float_or_none)
+        data['psychology_substation_goddard'] = psychology_data.apply(to_float_or_none)
         
-        janitza_data = self._get_janitza_column_data(janitza_df, 297).apply(to_float_or_none)
-        data['psychology_substation_goddard'] = janitza_data
-        
-        # Total with null handling
-        data['obs_psychology_total_kwh'] = stream_df.iloc[0:51, 87].apply(to_float_or_none)
+        # Calculate total as sum of the three values with null handling
+        data['obs_psychology_total_kwh'] = data.apply(
+            lambda row: float(row['business_incomer_1_lower'] or 0) + 
+                    float(row['business_incomer_2_upper'] or 0) + 
+                    float(row['psychology_substation_goddard'] or 0), axis=1)
         
         return data
 
 
+
     def _process_its_servers(self, stream_df: pd.DataFrame, janitza_df: pd.DataFrame, 
-                        months: list, years: list) -> pd.DataFrame:
+                            months: list, years: list) -> pd.DataFrame:
         data = pd.DataFrame()
         data['meter_reading_month'] = months
         data['meter_reading_year'] = years
@@ -307,20 +343,23 @@ class StreamElecProcessor:
         data['great_king_street_kwh'] = stream_df.iloc[0:51, 36].apply(to_float_or_none)
         data['great_king_street_pf'] = stream_df.iloc[0:51, 37].apply(to_float_or_none)
         
-        # Janitza data columns with null handling
-        janitza_data = self._get_janitza_column_data(janitza_df, 47).apply(to_float_or_none)
-        data['great_king_main_meter'] = janitza_data
+        # Process Janitza data columns
+        # Extract the required rows from Janitza data and transpose them
+        great_king_main_data = janitza_df.iloc[47, 2:53].reset_index(drop=True)  # C to AO
+        great_king_phys_data = janitza_df.iloc[48, 2:53].reset_index(drop=True)  # C to AO
         
-        janitza_data = self._get_janitza_column_data(janitza_df, 48).apply(to_float_or_none)
-        data['great_king_physiotherapy'] = janitza_data
+        # Add Janitza columns with null handling
+        data['great_king_main_meter'] = great_king_main_data.apply(to_float_or_none)
+        data['great_king_physiotherapy'] = great_king_phys_data.apply(to_float_or_none)
         
         # Calculate total with proper null handling
         data['its_servers_total_kwh'] = data.apply(
-            lambda row: (float(row['great_king_street_kwh'] or 0) + 
-                        float(row['great_king_main_meter'] or 0) - 
-                        float(row['great_king_physiotherapy'] or 0)), axis=1)
+            lambda row: float(row['great_king_street_kwh'] or 0) + 
+                    float(row['great_king_main_meter'] or 0) - 
+                    float(row['great_king_physiotherapy'] or 0), axis=1)
         
         return data
+
 
 
     def _process_commerce(self, janitza_df: pd.DataFrame, months: list, years: list) -> pd.DataFrame:
@@ -337,15 +376,16 @@ class StreamElecProcessor:
             except (ValueError, TypeError):
                 return None
         
-        # Janitza data columns with null handling
-        janitza_data = self._get_janitza_column_data(janitza_df, 278).apply(to_float_or_none)
-        data['business_incomer_1_lower'] = janitza_data
+        # Process Janitza data columns
+        # Extract the required rows from Janitza data and transpose them
+        business_incomer_1_data = janitza_df.iloc[278, 2:53].reset_index(drop=True)  # C to AO
+        business_incomer_2_data = janitza_df.iloc[279, 2:53].reset_index(drop=True)  # C to AO
+        psychology_data = janitza_df.iloc[297, 2:53].reset_index(drop=True)          # C to AO
         
-        janitza_data = self._get_janitza_column_data(janitza_df, 279).apply(to_float_or_none)
-        data['business_incomer_2_upper'] = janitza_data
-        
-        janitza_data = self._get_janitza_column_data(janitza_df, 297).apply(to_float_or_none)
-        data['psychology_substation_goddard'] = janitza_data
+        # Add Janitza columns with null handling
+        data['business_incomer_1_lower'] = business_incomer_1_data.apply(to_float_or_none)
+        data['business_incomer_2_upper'] = business_incomer_2_data.apply(to_float_or_none)
+        data['psychology_substation_goddard'] = psychology_data.apply(to_float_or_none)
         
         # Calculate total with proper null handling
         data['commerce_total_kwh'] = data.apply(
@@ -354,6 +394,7 @@ class StreamElecProcessor:
                     float(row['psychology_substation_goddard'] or 0), axis=1)
         
         return data
+
 
 
     def _process_school_of_medicine(self, df: pd.DataFrame, months: list, years: list) -> pd.DataFrame:
@@ -424,8 +465,23 @@ class StreamElecProcessor:
         # Last columns with null handling
         data['abbey_college_kwh'] = df.iloc[0:51, 78].apply(to_float_or_none)
         data['abbey_college_pf'] = df.iloc[0:51, 79].apply(to_float_or_none)
-        data['colleges_total_kwh'] = df.iloc[0:51, 84].apply(to_float_or_none)
-
+        
+        # Calculate total with proper null handling
+        data['colleges_total_kwh'] = data.apply(
+            lambda row: float(row['castle_college_kwh'] or 0) + 
+                    float(row['hayward_college_kwh'] or 0) + 
+                    float(row['cumberland_college_kwh'] or 0) +
+                    float(row['executive_residence_kwh'] or 0) + 
+                    float(row['owheo_building_kwh'] or 0) +
+                    float(row['st_margarets_college_kwh'] or 0) + 
+                    float(row['selwyn_college_kwh'] or 0) + 
+                    float(row['arana_college_main_kwh'] or 0) + 
+                    float(row['studholm_college_kwh'] or 0) +
+                    float(row['carrington_college_kwh'] or 0) + 
+                    float(row['aquinas_college_kwh'] or 0) + 
+                    float(row['caroline_freeman_college_kwh'] or 0) +
+                    float(row['abbey_college_kwh'] or 0), axis=1)
+        
         return data
 
 
@@ -444,55 +500,56 @@ class StreamElecProcessor:
             except (ValueError, TypeError):
                 return None
         
-        # Read all columns from A to CB (columns 3 to 80)
-        column_names = [
-            'ring_main_1_mp4889_kwh', 'ring_main_1_mp4889_pf',
-            'ring_main_2_kwh', 'ring_main_2_pf',
-            'ring_main_3_kwh', 'ring_main_3_pf',
-            'taieri_farm_kwh', 'taieri_farm_pf',
-            'castle_college_kwh', 'castle_college_pf',
-            'med_school_sub_main_kwh', 'med_school_sub_main_pf',
-            'hayward_college_kwh', 'hayward_college_pf',
-            'survey_marine_kwh', 'survey_marine_pf',
-            'cumberland_college_kwh', 'cumberland_college_pf',
-            'school_of_dentistry_kwh', 'school_of_dentistry_pf',
-            'zoology_buildings_kwh', 'zoology_buildings_pf',
-            'dental_school_kwh', 'dental_school_pf',
-            'hunter_centre_kwh', 'hunter_centre_pf',
-            'physiotherapy_kwh', 'physiotherapy_pf',
-            'student_health_kwh', 'student_health_pf',
-            'research_support_facility_kwh', 'research_support_facility_pf',
-            'hocken_library_kwh', 'hocken_library_pf',
-            'great_king_street_kwh', 'great_king_street_pf',
-            'botany_tin_hut_kwh', 'botany_tin_hut_pf',
-            'physical_education_kwh', 'physical_education_pf',
-            'executive_residence_kwh', 'executive_residence_pf',
-            'owheo_building_kwh', 'owheo_building_pf',
-            'robertson_library_kwh', 'robertson_library_pf',
-            'plaza_building_kwh', 'plaza_building_pf',
-            'education_main_boiler_room_kwh', 'education_main_boiler_room_pf',
-            'mellor_laboratories_kwh', 'mellor_laboratories_pf',
-            'biochemistry_kwh', 'biochemistry_pf',
-            'microbiology_kwh', 'microbiology_pf',
-            'science_2_kwh', 'science_2_pf',
-            'st_margarets_college_kwh', 'st_margarets_college_pf',
-            'unicol_kwh', 'unicol_pf',
-            'selwyn_college_kwh', 'selwyn_college_pf',
-            'arana_college_main_kwh', 'arana_college_main_pf',
-            'studholm_college_kwh', 'studholm_college_pf',
-            'carrington_college_kwh', 'carrington_college_pf',
-            'aquinas_college_kwh', 'aquinas_college_pf',
-            'caroline_freeman_college_kwh', 'caroline_freeman_college_pf',
-            'portobello_marine_lab_kwh', 'portobello_marine_lab_pf',
-            'abbey_college_kwh', 'abbey_college_pf'
-        ]
+        # Column mappings with their Excel indices
+        column_mappings = {
+            'ring_main_1_mp4889_kwh': 2, 'ring_main_1_mp4889_pf': 3,
+            'ring_main_2_kwh': 4, 'ring_main_2_pf': 5,
+            'ring_main_3_kwh': 6, 'ring_main_3_pf': 7,
+            'taieri_farm_kwh': 8, 'taieri_farm_pf': 9,
+            'castle_college_kwh': 10, 'castle_college_pf': 11,
+            'med_school_sub_main_kwh': 12, 'med_school_sub_main_pf': 13,
+            'hayward_college_kwh': 14, 'hayward_college_pf': 15,
+            'survey_marine_kwh': 16, 'survey_marine_pf': 17,
+            'cumberland_college_kwh': 18, 'cumberland_college_pf': 19,
+            'school_of_dentistry_kwh': 20, 'school_of_dentistry_pf': 21,
+            'zoology_buildings_kwh': 22, 'zoology_buildings_pf': 23,
+            'dental_school_kwh': 24, 'dental_school_pf': 25,
+            'hunter_centre_kwh': 26, 'hunter_centre_pf': 27,
+            'physiotherapy_kwh': 28, 'physiotherapy_pf': 29,
+            'student_health_kwh': 30, 'student_health_pf': 31,
+            'research_support_facility_kwh': 32, 'research_support_facility_pf': 33,
+            'hocken_library_kwh': 34, 'hocken_library_pf': 35,
+            'great_king_street_kwh': 36, 'great_king_street_pf': 37,
+            'botany_tin_hut_kwh': 38, 'botany_tin_hut_pf': 39,
+            'physical_education_kwh': 40, 'physical_education_pf': 41,
+            'executive_residence_kwh': 42, 'executive_residence_pf': 43,
+            'owheo_building_kwh': 44, 'owheo_building_pf': 45,
+            'robertson_library_kwh': 46, 'robertson_library_pf': 47,
+            'plaza_building_kwh': 48, 'plaza_building_pf': 49,
+            'education_main_boiler_room_kwh': 50, 'education_main_boiler_room_pf': 51,
+            'mellor_laboratories_kwh': 52, 'mellor_laboratories_pf': 53,
+            'biochemistry_kwh': 54, 'biochemistry_pf': 55,
+            'microbiology_kwh': 56, 'microbiology_pf': 57,
+            'science_2_kwh': 58, 'science_2_pf': 59,
+            'st_margarets_college_kwh': 60, 'st_margarets_college_pf': 61,
+            'unicol_kwh': 62, 'unicol_pf': 63,
+            'selwyn_college_kwh': 64, 'selwyn_college_pf': 65,
+            'arana_college_main_kwh': 66, 'arana_college_main_pf': 67,
+            'studholm_college_kwh': 68, 'studholm_college_pf': 69,
+            'carrington_college_kwh': 70, 'carrington_college_pf': 71,
+            'aquinas_college_kwh': 72, 'aquinas_college_pf': 73,
+            'caroline_freeman_college_kwh': 74, 'caroline_freeman_college_pf': 75,
+            'portobello_marine_lab_kwh': 76, 'portobello_marine_lab_pf': 77,
+            'abbey_college_kwh': 78, 'abbey_college_pf': 79
+        }
         
-        # Map all columns with null handling
-        for i, col_name in enumerate(column_names):
-            if i < 78:  # Only process the first 78 columns (A to CB)
-                data[col_name] = df.iloc[0:51, i].apply(to_float_or_none)
+        # Map all columns with correct indices and null handling
+        for col_name, idx in column_mappings.items():
+            data[col_name] = df.iloc[0:51, idx].apply(to_float_or_none)
         
-        # Add the final total column CL with null handling
-        data['total_stream_dn_electricity_kwh'] = df.iloc[0:51, 88].apply(to_float_or_none)
-        
+        # Calculate total by summing all _kwh columns
+        kwh_columns = [col for col in data.columns if col.endswith('_kwh')]
+        data['total_stream_dn_electricity_kwh'] = data[kwh_columns].sum(axis=1, skipna=True)
+    
         return data
+
