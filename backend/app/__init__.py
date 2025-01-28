@@ -25,13 +25,15 @@ def create_app():
     db.init_app(app)
     
     # Import and register blueprints
-    from .routes import auckland_routes, steam_mthw_routes, janitza_routes, lthw_routes, gas_routes, stream_elec_routes
+    from .routes import auckland_routes, steam_mthw_routes, janitza_routes, lthw_routes, gas_routes, stream_elec_routes, cfi_routes, mthw_routes
     app.register_blueprint(auckland_routes.bp)
     app.register_blueprint(steam_mthw_routes.bp)
     app.register_blueprint(janitza_routes.bp)
     app.register_blueprint(lthw_routes.bp)
     app.register_blueprint(gas_routes.bp)
     app.register_blueprint(stream_elec_routes.bp) 
+    app.register_blueprint(cfi_routes.bp) 
+    app.register_blueprint(mthw_routes.bp) 
     
     # Create database tables
     with app.app_context():
@@ -77,7 +79,11 @@ def create_app():
                 '/api/stream-elec/total-stream',
                 '/api/stream-elec/its-servers',
                 '/api/stream-elec/school-of-medicine',
-                '/api/stream-elec/commerce'
+                '/api/stream-elec/commerce',
+                '/api/cfi/meter',
+                '/api/cfi/rooms',
+                '/api/mthw/meter',
+                '/api/muthw/consumption'
             ]
         }
     
