@@ -9,23 +9,15 @@ from sqlalchemy import desc
 bp = Blueprint('energy_total', __name__, url_prefix='/api/energy-total')
 logger = logging.getLogger(__name__)
 
-# backend/app/routes/energy_total_routes.py
-
 @bp.route('/dashboard', methods=['GET'])
 def get_dashboard_data():
     """Get all energy total dashboard data"""
     try:
-        logger.info("Starting to fetch dashboard data")
         data = EnergyTotalDashboard.query.all()
-        result = [record.to_dict() for record in data]
-        logger.info(f"Successfully fetched {len(result)} records")
-        logger.debug(f"Data: {result}")
-        return jsonify(result)
+        return jsonify([record.to_dict() for record in data])
     except Exception as e:
         logger.error(f"Error fetching energy dashboard data: {str(e)}")
-        logger.error(f"Error type: {type(e)}")
         return jsonify({'error': 'Failed to fetch energy dashboard data'}), 500
-
 
 @bp.route('/latest', methods=['GET'])
 def get_latest_readings():
@@ -86,13 +78,3 @@ def get_summary():
     except Exception as e:
         logger.error(f"Error fetching energy summary: {str(e)}")
         return jsonify({'error': 'Failed to fetch energy summary'}), 500
-
-
-@bp.route('/analytics', methods=['GET'])
-def get_analytics_data():
-    try:
-        data = EnergyTotalDashboard.query.all()
-        return jsonify([record.to_dict() for record in data])
-    except Exception as e:
-        logger.error(f"Error fetching analytics data: {str(e)}")
-        return jsonify({'error': 'Failed to fetch analytics data'}), 500

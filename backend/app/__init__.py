@@ -25,7 +25,7 @@ def create_app():
     db.init_app(app)
     
     # Import and register blueprints
-    from .routes import auckland_routes, steam_mthw_routes, janitza_routes, lthw_routes, gas_routes, stream_elec_routes, cfi_routes, mthw_routes
+    from .routes import auckland_routes, steam_mthw_routes, janitza_routes, lthw_routes, gas_routes, stream_elec_routes, cfi_routes, mthw_routes, energy_total_routes
     app.register_blueprint(auckland_routes.bp)
     app.register_blueprint(steam_mthw_routes.bp)
     app.register_blueprint(janitza_routes.bp)
@@ -34,7 +34,8 @@ def create_app():
     app.register_blueprint(stream_elec_routes.bp) 
     app.register_blueprint(cfi_routes.bp) 
     app.register_blueprint(mthw_routes.bp) 
-    
+    app.register_blueprint(energy_total_routes.bp)
+
     # Create database tables
     with app.app_context():
         # Create schema if it doesn't exist
@@ -83,7 +84,9 @@ def create_app():
                 '/api/cfi/meter',
                 '/api/cfi/rooms',
                 '/api/mthw/meter',
-                '/api/muthw/consumption'
+                '/api/muthw/consumption',
+                '/api/energy-total/dashboard',
+                '/api/energy-total/analytics'
             ]
         }
     
