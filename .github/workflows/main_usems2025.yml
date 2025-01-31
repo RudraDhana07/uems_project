@@ -83,4 +83,4 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az webapp config set --name usems2025 --resource-group UEMS_2025 --startup-file "gunicorn --bind=0.0.0.0 --timeout 600 app:app"
+            az webapp config set --name usems2025 --resource-group UEMS_2025 --startup-file "gunicorn --chdir backend --bind=0.0.0.0 --timeout 600 app:app"
