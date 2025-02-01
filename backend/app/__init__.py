@@ -1,5 +1,4 @@
 # backend/app/__init__.py
-
 from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -25,17 +24,13 @@ def create_app():
     db.init_app(app)
     
     # Import and register blueprints
-    from .routes import auckland_routes, steam_mthw_routes, janitza_routes, lthw_routes, gas_routes, stream_elec_routes, cfi_routes, mthw_routes, energy_total_routes
-    app.register_blueprint(auckland_routes.bp)
-    app.register_blueprint(steam_mthw_routes.bp)
-    app.register_blueprint(janitza_routes.bp)
-    app.register_blueprint(lthw_routes.bp)
-    app.register_blueprint(gas_routes.bp)
-    app.register_blueprint(stream_elec_routes.bp) 
-    app.register_blueprint(cfi_routes.bp) 
-    app.register_blueprint(mthw_routes.bp) 
+    from .routes import stream_elec_routes, cfi_routes, mthw_routes, energy_total_routes
+    
+    app.register_blueprint(stream_elec_routes.bp)
+    app.register_blueprint(cfi_routes.bp)
+    app.register_blueprint(mthw_routes.bp)
     app.register_blueprint(energy_total_routes.bp)
-
+    
     # Create database tables
     with app.app_context():
         # Create schema if it doesn't exist
@@ -48,28 +43,9 @@ def create_app():
     @app.route('/')
     def health_check():
         return {
-            'status': 'healthy', 
+            'status': 'healthy',
             'message': 'UEMS API is running',
             'available_endpoints': [
-                '/api/auckland/electricity',
-                '/api/auckland/water-calculated',
-                '/api/auckland/water',
-                '/api/steam-mthw/readings',
-                '/api/steam-mthw/readings/latest',
-                '/api/steam-mthw/summary',
-                '/api/janitza/med',
-                '/api/janitza/freezer',
-                '/api/janitza/uod4f6',
-                '/api/janitza/uof8x',
-                '/api/janitza/manual',
-                '/api/janitza/calculated',
-                '/api/lthw/automated',
-                '/api/lthw/manual',
-                '/api/lthw/consumption',
-                '/api/gas/automated',
-                '/api/gas/manual',
-                '/api/gas/consumption',
-                '/api/gas/analysis',
                 '/api/stream-elec/ring-mains',
                 '/api/stream-elec/libraries',
                 '/api/stream-elec/colleges',
