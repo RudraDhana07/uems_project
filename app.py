@@ -1,5 +1,7 @@
 # root/app.py
-from backend.app import app
+from backend.app import create_app
+
+app = create_app()
 
 if __name__ == "__main__":
     app.run()
