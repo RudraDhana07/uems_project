@@ -16,23 +16,6 @@ interface ColumnGroup {
     }[];
 }
 
- 
-
-// Define column mappings for each table type
-type ColumnGroupsMapping = {
-    ringMains: ColumnGroup[];
-    libraries: ColumnGroup[];
-    colleges: ColumnGroup[];
-    science: ColumnGroup[];
-    healthScience: ColumnGroup[];
-    humanities: ColumnGroup[];
-    obsPsychology: ColumnGroup[];
-    totalStream: ColumnGroup[];
-    itsServers: ColumnGroup[];
-    schoolOfMedicine: ColumnGroup[];
-    commerce: ColumnGroup[];
-};
-
 interface ChartConfig {
     columns: {
       key: string;
@@ -40,13 +23,9 @@ interface ChartConfig {
       color: string;
     }[];
   }
+ 
 
- // Create a mapping type that matches your tableType
-type ChartConfigsMapping = {
-    [K in keyof typeof columnGroups]: ChartConfig;
-  };
-
-const ringMainsGroups: ColumnGroup[] = [
+  const ringMainsGroups: ColumnGroup[] = [
     {
         title: 'Month',
         subColumns: [{ key: 'meter_reading_month', label: '' }]
@@ -798,10 +777,10 @@ const commerceGroups: ColumnGroup[] = [
         title: 'Total',
         subColumns: [{ key: 'commerce_total_kwh', label: 'kWh' }]
     }
-];
+];  
 
-// Then create the mapping object
-const columnGroups: ColumnGroupsMapping = {
+
+const columnGroups = {
     ringMains: ringMainsGroups,
     libraries: librariesGroups,
     colleges: collegesGroups,
@@ -813,6 +792,12 @@ const columnGroups: ColumnGroupsMapping = {
     itsServers: itsServersGroups,
     schoolOfMedicine: schoolOfMedicineGroups,
     commerce: commerceGroups
+};
+
+// Finally define the mapping types
+type ColumnGroupsMapping = typeof columnGroups;
+type ChartConfigsMapping = {
+    [K in keyof typeof columnGroups]: ChartConfig;
 };
 
 
