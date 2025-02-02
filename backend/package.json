@@ -1,6 +1,22 @@
 {
+  "name": "uems-backend",
+  "version": "1.0.0",
+  "description": "University Energy Management System Backend",
+  "main": "app/__init__.py",
+  "scripts": {
+    "start": "flask run",
+    "dev": "FLASK_ENV=development FLASK_DEBUG=1 flask run",
+    "test": "pytest",
+    "lint": "pylint app/",
+    "clean": "find . -type d -name \"__pycache__\" -exec rm -r {} + && find . -type f -name \"*.pyc\" -exec rm -f {} +"
+  },
   "dependencies": {
-    "d3": "^7.9.0",
-    "recharts": "^2.15.0"
-  }
+    "python-dotenv": "^0.19.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "private": true,
+  "author": "Dhanaraj Rajasekaran",
+  "license": "ISC"
 }
