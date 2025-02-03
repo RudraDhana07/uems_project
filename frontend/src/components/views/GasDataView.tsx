@@ -109,25 +109,61 @@ const tableStyles = {
 
   const getOrderedColumns = (data: DataRow[], tableType: 'automated' | 'manual' | 'consumption'): string[] => {
     if (!data.length) return [];
-    
-  /// Define column order based on model structure with proper typing
-  const baseColumns: Record<'automated' | 'manual' | 'consumption', string[]> = {
-    'automated': ['meter_description', 'icp'],
-    'manual': ['meter_description', 'misc1', 'misc2'],
-    'consumption': ['object_description', 'misc']
-  };
   
-  // Get monthly columns in order
-  const years = ['2022', '2023', '2024', '2025'];
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
-    const monthlyColumns = years.flatMap(year => 
-      months.map(month => `${month}_${year}`)
-    );
-    
+    // Define column order based on physical table structure
+    const baseColumns: Record<'automated' | 'manual' | 'consumption', string[]> = {
+      'automated': ['meter_description', 'icp'],
+      'manual': ['meter_description', 'misc1', 'misc2'],
+      'consumption': ['object_description', 'misc']
+    };
+  
+    // Get monthly columns in chronological order
+    const monthlyColumns: string[] = [];
+    const years = ['2022', '2023', '2024', '2025'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
+    for (const year of years) {
+      for (const month of months) {
+        const columnName = `${month}_${year}`;
+        // Only add column if it exists in data
+        if (data[0].hasOwnProperty(columnName)) {
+          monthlyColumns.push(columnName);
+        }
+      }
+    } 
+  
+    // Combine base columns with monthly columns
     return [...baseColumns[tableType], ...monthlyColumns];
   }; 
+
+  const formatValue = (value: any): string => {
+    if (value === null || value === undefined) return '-';
+    if (typeof value === 'number') {
+      return value.toFixed(2).replace(/\.?0+$/, '');
+    }
+    return value.toString();
+  };
+  
+  const getRowStyle = (
+    row: DataRow, 
+    tableType: 'automated' | 'manual' | 'consumption'
+  ) => {
+    if (tableType === 'automated' && row.meter_description) {
+      return HIGHLIGHTED_METERS.includes(row.meter_description) 
+        ? { ...tableStyles.tr, backgroundColor: '#FFE9A8' } 
+        : tableStyles.tr;
+    }
+    
+    if (tableType === 'consumption' && row.object_description) {
+      return HIGHLIGHTED_CONSUMPTION.includes(row.object_description) 
+        ? { ...tableStyles.tr, backgroundColor: '#FFE9A8' } 
+        : tableStyles.tr;
+    }
+    
+    return tableStyles.tr;
+  };
+
 
   const GasDataTable: React.FC<DataTableProps> = ({ data, title, isLoading, tableType }) => {
     if (isLoading) {
@@ -137,66 +173,37 @@ const tableStyles = {
     if (!data || data.length === 0) {
       return <div>No data available</div>;
     }
-
-    type Column = string;
   
-    const columns: Column[] = Object.keys(data[0] || {});
-
     const orderedColumns = getOrderedColumns(data, tableType);
-
- 
-  const formatValue = (value: any): string => {
-    if (value === null || value === undefined) return '-';
-    if (typeof value === 'number') {
-      return value.toFixed(2).replace(/\.?0+$/, '');
-    }
-    return value.toString();
-  };
-
-  const getRowStyle = (row: DataRow) => {
-    if (tableType === 'automated' && row.meter_description) {
-      return HIGHLIGHTED_METERS.includes(row.meter_description) ? 
-        { ...tableStyles.tr, backgroundColor: '#FFE9A8' } : 
-        tableStyles.tr;
-    }
-    
-    if (tableType === 'consumption' && row.object_description) {
-      return HIGHLIGHTED_CONSUMPTION.includes(row.object_description) ? 
-        { ...tableStyles.tr, backgroundColor: '#FFE9A8' } : 
-        tableStyles.tr;
-    }
-    
-    return tableStyles.tr;
-  };
-
-  return (
-    <div>
-      <h2>{title}</h2>
-      <table style={tableStyles.table}>
-        <thead>
-          <tr>
-            {columns.map((column: Column) => (
-              <th key={column} style={tableStyles.th}>
-                {column.replace(/_/g, ' ')}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-        {data.map((row: DataRow, index: number) => (
-            <tr key={index} style={getRowStyle(row)}>
+  
+    return (
+      <div style={tableStyles.container}>
+        <h2>{title}</h2>
+        <table style={tableStyles.table}>
+          <thead>
+            <tr>
               {orderedColumns.map((column: string) => (
-                <td key={column} style={tableStyles.td}>
-                  {formatValue(row[column])}
+                <th key={column} style={tableStyles.th}>
+                  {column.replace(/_/g, ' ')}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((row: DataRow, index: number) => (
+              <tr key={index} style={getRowStyle(row, tableType)}>
+                {orderedColumns.map((column: string) => (
+                  <td key={column} style={tableStyles.td}>
+                    {formatValue(row[column])}
                   </td>
                 ))}
               </tr>
             ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
 const GasDataView: React.FC = () => {
     const [activeTab, setActiveTab] = useState(0);

@@ -24,3 +24,7 @@ frontend/node_modules/
 
 # Vim temporary files
 *.swp
+
+
+# System file
+*.DS_Store
