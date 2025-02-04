@@ -35,6 +35,7 @@ def create_plot_image(plt):
     buf.seek(0)
     return base64.b64encode(buf.getvalue()).decode('utf-8')
 
+
 @gas_analysis.route('/api/gas/analysis', methods=['GET'])
 def get_gas_analysis():
     try:
