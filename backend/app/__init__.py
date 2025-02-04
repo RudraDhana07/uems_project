@@ -7,6 +7,7 @@ from sqlalchemy import text
 from dotenv import load_dotenv
 import os
 
+
 # Initialize SQLAlchemy
 db = SQLAlchemy()
 
@@ -28,6 +29,21 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
+    
+    # Check if running in Azure
+    is_azure = os.environ.get('WEBSITE_HOSTNAME') is not None
+    
+    if is_azure and os.getenv('INIT_DB', 'false').lower() == 'true':
+        with app.app_context():
+            try:
+                # Your data loading scripts here
+                from scripts.load_auckland_electricity import load_auckland_electricity
+                load_auckland_electricity()
+                os.environ['INIT_DB'] = 'false'
+            except Exception as e:
+                print(f"Azure DB initialization error: {e}")
+
+
     # Initialize extensions
     db.init_app(app)
     
