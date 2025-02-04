@@ -32,6 +32,7 @@ def create_app():
     
     # Check if running in Azure
     is_azure = os.environ.get('WEBSITE_HOSTNAME') is not None
+    print(f"Azure Website is: {is_azure}")
     
     if is_azure and os.getenv('INIT_DB', 'false').lower() == 'true':
         with app.app_context():
