@@ -25,14 +25,13 @@ def create_app():
     if database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql://")
 
+    is_azure = os.environ.get('WEBSITE_HOSTNAME') is not None
+    print(f"Azure Website is: {is_azure}")
+    print(f"Database URL: {os.getenv('DATABASE_URL')}")
+
     # Configure database
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    
-    
-    # Check if running in Azure
-    is_azure = os.environ.get('WEBSITE_HOSTNAME') is not None
-    print(f"Azure Website is: {is_azure}")
     
     if is_azure and os.getenv('INIT_DB', 'false').lower() == 'true':
         with app.app_context():
