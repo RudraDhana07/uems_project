@@ -17,8 +17,15 @@ def create_app():
     # Load environment variables
     load_dotenv()
     
+    database_url = os.getenv('DATABASE_URL')
+    if not database_url:
+        raise ValueError("No DATABASE_URL set for Flask application")
+    
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://")
+
     # Configure database
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # Initialize extensions
