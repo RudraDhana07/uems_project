@@ -1,6 +1,7 @@
 // src/components/view/AucklandDataView.tsx
 
 import ElectricityConsumptionChart from '../visualizations/ElectricityConsumptionChart';
+import { API_BASE_URL, API_ENDPOINTS } from '../../config/api';
 import React, { useState, useEffect } from 'react';
 
 
@@ -233,17 +234,19 @@ const AucklandDataView: React.FC = () => {
       try {
         setIsLoading(true);
         setError(null);
-        const baseUrl = 'http://127.0.0.1:5001';
+        console.log('Fetching from:', `${API_BASE_URL}${API_ENDPOINTS.electricity}`);
 
         const [electricityRes, waterCalcRes, waterRes] = await Promise.all([
-          fetch(`${baseUrl}/api/auckland/electricity`),
-          fetch(`${baseUrl}/api/auckland/water-calculated`),
-          fetch(`${baseUrl}/api/auckland/water`)
+          fetch(`${API_BASE_URL}${API_ENDPOINTS.electricity}`),
+          fetch(`${API_BASE_URL}${API_ENDPOINTS.waterCalculated}`),
+          fetch(`${API_BASE_URL}${API_ENDPOINTS.water}`)
         ]);
 
-        if (!electricityRes.ok || !waterCalcRes.ok || !waterRes.ok) {
-          throw new Error('Failed to fetch data');
-        }
+        console.log('Response status:', {
+          electricity: electricityRes.status,
+          waterCalc: waterCalcRes.status,
+          water: waterRes.status
+        });
 
         const [electricityData, waterCalcData, waterData] = await Promise.all([
           electricityRes.json(),
