@@ -19,6 +19,7 @@ def create_app():
     load_dotenv()
     
     database_url = os.getenv('DATABASE_URL')
+    
     if not database_url:
         raise ValueError("No DATABASE_URL set for Flask application")
     
@@ -36,12 +37,18 @@ def create_app():
     if is_azure and os.getenv('INIT_DB', 'false').lower() == 'true':
         with app.app_context():
             try:
-                # Your data loading scripts here
-                from scripts.load_auckland_electricity import load_auckland_electricity
-                load_auckland_electricity()
+                data_file = os.getenv('DATA_FILE', '2024 campus meter readings.xlsx')
+
+                print(f"Loading data from file: {data_file}")
+                
+                # Import and run the data loading script
+                from backend.scripts.load_auckland_electricity import load_auckland_electricity
+                records_loaded = load_auckland_electricity(data_file)
+                print(f"Successfully loaded {records_loaded} records")
+                # Set INIT_DB to false after successful load
                 os.environ['INIT_DB'] = 'false'
             except Exception as e:
-                print(f"Azure DB initialization error: {e}")
+                print(f"Azure DB initialization error: {str(e)}")
 
 
     # Initialize extensions
