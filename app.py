@@ -3,7 +3,12 @@ import os
 import sys
 import logging
 from datetime import datetime
+from pathlib import Path
 from backend.app import create_app
+
+# Add the project root directory to Python path
+root_dir = Path(__file__).resolve().parent
+sys.path.append(str(root_dir))
 
 # Configure detailed logging
 logging.basicConfig(
@@ -19,6 +24,7 @@ logger = logging.getLogger(__name__)
 try:
     # Log system information
     logger.info(f"Starting UEMS API Application at {datetime.now().isoformat()}")
+    logger.info(f"Root Directory: {root_dir}")
     logger.info(f"Working Directory: {os.getcwd()}")
     logger.info(f"Directory Contents: {os.listdir('.')}")
     logger.info(f"Python Path: {sys.path}")

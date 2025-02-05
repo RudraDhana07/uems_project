@@ -5,6 +5,7 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 from dotenv import load_dotenv
+import sys
 import os
 from datetime import datetime 
 
@@ -82,7 +83,7 @@ def create_app():
             'timestamp': datetime.now().isoformat(),
             'environment': 'Production' if os.environ.get('WEBSITE_HOSTNAME') else 'Development',
             'app_directory': os.getcwd(),
-            'workers': 2,
+            'python_version': sys.version,
             'available_endpoints': [
                 '/api/auckland/electricity',
                 '/api/auckland/water-calculated',
