@@ -15,18 +15,16 @@ class AucklandElectricityLoader:
         
     def create_schema(self):
         """Create database schema if it doesn't exist"""
-        with self.engine.connect() as connection:
+        with self.engine.begin() as connection:
             connection.execute(text('CREATE SCHEMA IF NOT EXISTS dbo;'))
-            connection.commit()
             
     def recreate_tables(self):
         """Drop and recreate only the electricity consumption table"""
-        with self.engine.connect() as connection:
+        with self.engine.begin() as connection:
             # Drop only this specific table
             connection.execute(text('''
                 DROP TABLE IF EXISTS dbo.auckland_electricity_calculated_consumption CASCADE;
             '''))
-            connection.commit()
         
         # Create only this table
         AucklandElectricityCalculatedConsumption.__table__.create(self.engine)
