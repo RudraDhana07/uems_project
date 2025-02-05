@@ -29,17 +29,6 @@ try:
     app = create_app()
     logger.debug("App created successfully")
 
-    # Add basic health check endpoint
-    @app.route('/health')
-    def health_check():
-        return {
-            'status': 'healthy',
-            'timestamp': datetime.now().isoformat(),
-            'environment': 'Production' if os.environ.get('WEBSITE_HOSTNAME') else 'Development',
-            'app_directory': os.getcwd(),
-            'workers': 2
-        }
-
 except Exception as e:
     logger.error(f"Failed to initialize application: {str(e)}", exc_info=True)
     raise

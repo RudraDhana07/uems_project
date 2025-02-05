@@ -22,9 +22,9 @@ class AucklandElectricityLoader:
         """Drop and recreate only the electricity consumption table"""
         with self.engine.begin() as connection:
             connection.execute(text('''
+                DROP SEQUENCE IF EXISTS dbo.auckland_electricity_calculated_consumption_id_seq CASCADE;
                 DROP TABLE IF EXISTS dbo.auckland_electricity_calculated_consumption CASCADE;
             '''))
-        
         AucklandElectricityCalculatedConsumption.__table__.create(self.engine)
             
     def load_data(self, excel_file: str) -> int:

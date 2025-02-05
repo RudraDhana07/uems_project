@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 from dotenv import load_dotenv
 import os
+from datetime import datetime 
 
 
 # Initialize SQLAlchemy
@@ -78,6 +79,10 @@ def create_app():
         return {
             'status': 'healthy', 
             'message': 'UEMS API is running',
+            'timestamp': datetime.now().isoformat(),
+            'environment': 'Production' if os.environ.get('WEBSITE_HOSTNAME') else 'Development',
+            'app_directory': os.getcwd(),
+            'workers': 2,
             'available_endpoints': [
                 '/api/auckland/electricity',
                 '/api/auckland/water-calculated',
