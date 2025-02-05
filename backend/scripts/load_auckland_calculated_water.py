@@ -1,71 +1,77 @@
 # backend/scripts/load_auckland_calculated_water.py
 
 import os
-import sys
 from pathlib import Path
 import logging
-
-# Add the parent directory to Python path
-current_dir = Path(__file__).resolve().parent
-backend_dir = current_dir.parent
-sys.path.append(str(backend_dir))
-
-from dotenv import load_dotenv
-from app.services.auckland_calculated_water_loader import AucklandCalculatedWaterLoader
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def main():
-    # Load environment variables
-    load_dotenv()
+# Setup path for local execution
+current_dir = Path(__file__).resolve().parent
+backend_dir = current_dir.parent
+
+import sys
+sys.path.append(str(backend_dir.parent))
+
+def load_auckland_calculated_water(excel_filename='2024 campus meter readings.xlsx'):
+    """
+    Load Auckland calculated water data from Excel file
     
-    # Get database URL
-    db_url = os.getenv('DATABASE_URL')
-    if not db_url:
-        raise ValueError("DATABASE_URL environment variable not set")
-    
-    # Setup data directory path
-    data_dir = backend_dir / 'data'
-    excel_file = data_dir / '2024 campus meter readings.xlsx'
-    
-    # Verify file exists
-    if not excel_file.exists():
-        raise FileNotFoundError(
-            f"Excel file not found at {excel_file}. "
-            f"Please place the file '2024 campus meter readings.xlsx' "
-            f"in the {data_dir} directory."
-        )
-    
+    Args:
+        excel_filename (str): Name of the Excel file to process
+        
+    Returns:
+        int: Number of records loaded
+    """
     try:
+        # Get database URL
+        from dotenv import load_dotenv
+        load_dotenv()
+        
+        db_url = os.getenv('DATABASE_URL')
+        if not db_url:
+            raise ValueError("DATABASE_URL environment variable not set")
+
+        # Setup data directory path
+        data_dir = backend_dir / 'data'
+        excel_file = data_dir / excel_filename
+        
+        if not excel_file.exists():
+            raise FileNotFoundError(f"Excel file not found at {excel_file}")
+
+        # Import after path setup
+        from backend.app.services.auckland_calculated_water_loader import AucklandCalculatedWaterLoader
+        
         logger.info(f"Loading calculated water consumption data from: {excel_file}")
         
-        # Initialize loader
         loader = AucklandCalculatedWaterLoader(db_url)
         
-        # Create schema and tables
         logger.info("Creating schema...")
         loader.create_schema()
         
         logger.info("Creating tables...")
         loader.create_tables()
         
-        # Load data
         logger.info("Loading data...")
         records_loaded = loader.load_data(str(excel_file))
+        
         logger.info(f"Successfully loaded {records_loaded} records")
         
-        # Verify data
         verification = loader.verify_data()
-        logger.info("\nVerification Results:")
-        logger.info(f"Calculated Water Records: {verification.get('calculated_records', 0)}")
-                
+        logger.info(f"Total calculated water records: {verification.get('calculated_records', 0)}")
+        
+        return records_loaded
+
     except Exception as e:
         logger.error(f"Error: {str(e)}")
-        sys.exit(1)
-    
-    logger.info("Data loading completed successfully")
+        raise
 
 if __name__ == "__main__":
-    main()
+    try:
+        records_loaded = load_auckland_calculated_water()
+        print(f"Script completed successfully. Loaded {records_loaded} records.")
+    except Exception as e:
+        print(f"Error executing script: {e}")
+        sys.exit(1)

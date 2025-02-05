@@ -40,11 +40,23 @@ def create_app():
         with app.app_context():
             try:
                 # Import and run the data loading script
+                
                 from backend.scripts.load_auckland_electricity import load_auckland_electricity
                 excel_filename = os.getenv('DATA_FILE', '2024 campus meter readings.xlsx')
                 print(f"Loading data from file: {excel_filename}")
                 records_loaded = load_auckland_electricity(excel_filename)
-                print(f"Successfully loaded {records_loaded} records")
+                print(f"Successfully loaded {records_loaded} records for auckland_electricity")
+                
+                from backend.scripts.load_auckland_calculated_water import load_auckland_calculated_water
+                records_loaded = load_auckland_calculated_water(excel_filename)
+                print(f"Successfully loaded {records_loaded} records for auckland_calculated_water")
+
+                from backend.scripts.load_auckland_water import load_auckland_water
+                records_loaded = load_auckland_water(excel_filename)
+                print(f"Successfully loaded {records_loaded} records for auckland_water")
+                
+                
+                
                 os.environ['INIT_DB'] = 'false'
             except Exception as e:
                 print(f"Azure DB initialization error: {str(e)}")
