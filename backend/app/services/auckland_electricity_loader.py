@@ -21,12 +21,10 @@ class AucklandElectricityLoader:
     def recreate_tables(self):
         """Drop and recreate only the electricity consumption table"""
         with self.engine.begin() as connection:
-            # Drop only this specific table
             connection.execute(text('''
                 DROP TABLE IF EXISTS dbo.auckland_electricity_calculated_consumption CASCADE;
             '''))
         
-        # Create only this table
         AucklandElectricityCalculatedConsumption.__table__.create(self.engine)
             
     def load_data(self, excel_file: str) -> int:
