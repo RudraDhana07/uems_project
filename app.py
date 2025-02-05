@@ -36,7 +36,8 @@ try:
             'status': 'healthy',
             'timestamp': datetime.now().isoformat(),
             'environment': 'Production' if os.environ.get('WEBSITE_HOSTNAME') else 'Development',
-            'app_directory': os.getcwd()
+            'app_directory': os.getcwd(),
+            'workers': 2
         }
 
 except Exception as e:
