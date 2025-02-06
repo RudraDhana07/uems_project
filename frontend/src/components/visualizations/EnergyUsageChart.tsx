@@ -3,12 +3,21 @@ import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { EnergyUsageChartProps, ProcessedChartData } from '../../types/streamElecData';
 
+const isValidNumber = (value: any): boolean => {
+  return value !== null && 
+         value !== undefined && 
+         value !== '-' && 
+         !isNaN(value) && 
+         value !== 0;  // Exclude 0 if it's a default value
+};
+
+
 const EnergyUsageChart: React.FC<EnergyUsageChartProps> = ({ data, columns }) => {
   const processedData: ProcessedChartData[] = data.map(row => ({
     date: `${row.meter_reading_year}-${row.meter_reading_month}`,
     ...columns.reduce((acc, col) => ({
       ...acc,
-      [col.key]: Number(row[col.key])
+      [col.key]: isValidNumber(row[col.key]) ? Number(row[col.key]) : undefined
     }), {})
   }));
 

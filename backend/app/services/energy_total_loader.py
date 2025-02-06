@@ -1,5 +1,3 @@
-# backend/app/services/energy_total_loader.py
-
 from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -15,7 +13,6 @@ class EnergyTotalLoader:
 
     def load_data(self):
         try:
-
             # First truncate the existing table
             self.session.execute(text('TRUNCATE TABLE dbo.energy_total_dashboard RESTART IDENTITY CASCADE;'))
             self.session.commit()
@@ -51,26 +48,26 @@ class EnergyTotalLoader:
                     object_name='Total Solar Energy - DN'
                 ).first()
                 
-                # Get the correct monthly values with NULL handling
+                # Get the correct monthly values
                 column_name = f"{month}_{year}"
                 
-                # Handle NULL values by defaulting to 0
-                stream_value = stream_record.total_stream_dn_electricity_kwh or 0
-                mthw_value = mthw_steam.mthw_consumption_kwh if mthw_steam else 0
-                steam_value = mthw_steam.total_steam_consumption_kwh if mthw_steam else 0
-                lpg_value = getattr(lpg_data, column_name, 0) or 0
-                woodchip_value = getattr(woodchip_data, column_name, 0) or 0
-                solar_value = getattr(solar_data, column_name, 0) or 0
+                # Store values with None if not available 
+                stream_value = (stream_record.total_stream_dn_electricity_kwh 
+                                if stream_record.total_stream_dn_electricity_kwh != 0 
+                                else None)
+                mthw_value = mthw_steam.mthw_consumption_kwh if mthw_steam else None
+                steam_value = mthw_steam.total_steam_consumption_kwh if mthw_steam else None
+                lpg_value = getattr(lpg_data, column_name, None)
+                woodchip_value = getattr(woodchip_data, column_name, None)
+                solar_value = getattr(solar_data, column_name, None)
                 
-                # Calculate total with NULL-safe values
-                total_kwh = (
-                    float(stream_value) +
-                    float(mthw_value) +
-                    float(steam_value) +
-                    float(lpg_value) +
-                    float(woodchip_value) +
-                    float(solar_value)
-                )
+                # Calculate total only if all values are available
+                if all(v is not None for v in [stream_value, mthw_value, steam_value, 
+                                             lpg_value, woodchip_value, solar_value]):
+                    total_kwh = float(stream_value + mthw_value + steam_value + 
+                                    lpg_value + woodchip_value + solar_value)
+                else:
+                    total_kwh = None
                 
                 # Create new record
                 new_record = EnergyTotalDashboard(

@@ -2,6 +2,15 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
+
+const isValidNumber = (value: any): boolean => {
+  return value !== null && 
+         value !== undefined && 
+         value !== '-' && 
+         !isNaN(value) && 
+         value !== 0;  // Exclude 0 if it's a default value
+};
+
 interface ElectricityGraphsProps {
   data: {
     ringMains: any[];
@@ -27,27 +36,42 @@ const ElectricityGraphs: React.FC<ElectricityGraphsProps> = ({ data }) => {
 
   const processedData = data.ringMains.map((row: any) => ({
     date: `${row.meter_reading_year}-${row.meter_reading_month}`,
-    'Ring Mains': row.ring_mains_total_kwh || 0,
-    'Libraries': data.libraries.find((lib: any) => 
-      lib.meter_reading_year === row.meter_reading_year && 
+    'Ring Mains': isValidNumber(row.ring_mains_total_kwh) ? row.ring_mains_total_kwh : undefined,
+    'Libraries': isValidNumber(data.libraries.find((lib: any) =>
+      lib.meter_reading_year === row.meter_reading_year &&
       lib.meter_reading_month === row.meter_reading_month
-    )?.libraries_total_kwh || 0,
-    'Colleges': data.colleges.find((col: any) => 
-      col.meter_reading_year === row.meter_reading_year && 
+    )?.libraries_total_kwh) ? data.libraries.find((lib: any) =>
+      lib.meter_reading_year === row.meter_reading_year &&
+      lib.meter_reading_month === row.meter_reading_month
+    )?.libraries_total_kwh : undefined,
+    'Colleges': isValidNumber(data.colleges.find((col: any) =>
+      col.meter_reading_year === row.meter_reading_year &&
       col.meter_reading_month === row.meter_reading_month
-    )?.colleges_total_kwh || 0,
-    'Science': data.science.find((sci: any) => 
-      sci.meter_reading_year === row.meter_reading_year && 
+    )?.colleges_total_kwh) ? data.colleges.find((col: any) =>
+      col.meter_reading_year === row.meter_reading_year &&
+      col.meter_reading_month === row.meter_reading_month
+    )?.colleges_total_kwh : undefined,
+    'Science': isValidNumber(data.science.find((sci: any) =>
+      sci.meter_reading_year === row.meter_reading_year &&
       sci.meter_reading_month === row.meter_reading_month
-    )?.science_total_kwh || 0,
-    'Health Science': data.healthScience.find((health: any) => 
-      health.meter_reading_year === row.meter_reading_year && 
+    )?.science_total_kwh) ? data.science.find((sci: any) =>
+      sci.meter_reading_year === row.meter_reading_year &&
+      sci.meter_reading_month === row.meter_reading_month
+    )?.science_total_kwh : undefined,
+    'Health Science': isValidNumber(data.healthScience.find((health: any) =>
+      health.meter_reading_year === row.meter_reading_year &&
       health.meter_reading_month === row.meter_reading_month
-    )?.health_science_total_kwh || 0,
-    'Humanities': data.humanities.find((hum: any) => 
-      hum.meter_reading_year === row.meter_reading_year && 
+    )?.health_science_total_kwh) ? data.healthScience.find((health: any) =>
+      health.meter_reading_year === row.meter_reading_year &&
+      health.meter_reading_month === row.meter_reading_month
+    )?.health_science_total_kwh : undefined,
+    'Humanities': isValidNumber(data.humanities.find((hum: any) =>
+      hum.meter_reading_year === row.meter_reading_year &&
       hum.meter_reading_month === row.meter_reading_month
-    )?.humanities_total_kwh || 0
+    )?.humanities_total_kwh) ? data.humanities.find((hum: any) =>
+      hum.meter_reading_year === row.meter_reading_year &&
+      hum.meter_reading_month === row.meter_reading_month
+    )?.humanities_total_kwh : undefined
   }));
 
   const calculateTotals = () => {
@@ -115,13 +139,14 @@ const ElectricityGraphs: React.FC<ElectricityGraphsProps> = ({ data }) => {
   // Add data processing for Health Science breakdown
   const healthScienceData = data.healthScience.map((row: any) => ({
     date: `${row.meter_reading_year}-${row.meter_reading_month}`,
-    'Taieri Farm': row.taieri_farm_kwh || 0,
-    'Medical School': row.med_school_sub_main_kwh || 0,
-    'Dental School': row.dental_school_kwh || 0,
-    'Hunter Centre': row.hunter_centre_kwh || 0,
-    'Physiotherapy': row.physiotherapy_kwh || 0,
-    'Research Support': row.research_support_facility_kwh || 0
+    'Taieri Farm': row.taieri_farm_kwh ?? undefined,
+    'Medical School': row.med_school_sub_main_kwh ?? undefined,
+    'Dental School': row.dental_school_kwh ?? undefined,
+    'Hunter Centre': row.hunter_centre_kwh ?? undefined,
+    'Physiotherapy': row.physiotherapy_kwh ?? undefined,
+    'Research Support': row.research_support_facility_kwh ?? undefined
   }));
+
 
   const healthScienceDivisions = [
     { key: 'Taieri Farm', color: '#1f77b4' },
@@ -156,20 +181,20 @@ const ElectricityGraphs: React.FC<ElectricityGraphsProps> = ({ data }) => {
 
 
     // Add data processing for Science breakdown
-  const scienceData = data.science.map((row: any) => ({
-    date: `${row.meter_reading_year}-${row.meter_reading_month}`,
-    'Survey Marine': row.survey_marine_kwh || 0,
-    'Zoology Buildings': row.zoology_buildings_kwh || 0,
-    'Botany Tin Hut': row.botany_tin_hut_kwh || 0,
-    'Physical Education': row.physical_education_kwh || 0,
-    'Owheo Building': row.owheo_building_kwh || 0,
-    'Mellor Lab': row.mellor_laboratories_kwh || 0,
-    'Microbiology': row.microbiology_kwh || 0,
-    'Science 2': row.science_2_kwh || 0,
-    'Portobello Marine Lab': row.portobello_marine_lab_kwh || 0,
-    'Geology North': row.geology_north || 0,
-    'Geology South': row.geology_south || 0
-  }));
+    const scienceData = data.science.map((row: any) => ({
+      date: `${row.meter_reading_year}-${row.meter_reading_month}`,
+      'Survey Marine': row.survey_marine_kwh ?? undefined,
+      'Zoology Buildings': row.zoology_buildings_kwh ?? undefined,
+      'Botany Tin Hut': row.botany_tin_hut_kwh ?? undefined,
+      'Physical Education': row.physical_education_kwh ?? undefined,
+      'Owheo Building': row.owheo_building_kwh ?? undefined,
+      'Mellor Lab': row.mellor_laboratories_kwh ?? undefined,
+      'Microbiology': row.microbiology_kwh ?? undefined,
+      'Science 2': row.science_2_kwh ?? undefined,
+      'Portobello Marine Lab': row.portobello_marine_lab_kwh ?? undefined,
+      'Geology North': row.geology_north ?? undefined,
+      'Geology South': row.geology_south ?? undefined
+    }));
 
   const scienceDivisions = [
     { key: 'Survey Marine', color: '#1f77b4' },
@@ -213,9 +238,9 @@ const ElectricityGraphs: React.FC<ElectricityGraphsProps> = ({ data }) => {
   // Add data processing for Ring Mains breakdown
   const ringMainData = data.ringMains.map((row: any) => ({
     date: `${row.meter_reading_year}-${row.meter_reading_month}`,
-    'Ring Main #1': row.ring_main_1_mp4889_kwh || 0,
-    'Ring Main #2': row.ring_main_2_kwh || 0,
-    'Ring Main #3': row.ring_main_3_kwh || 0
+    'Ring Main #1': row.ring_main_1_mp4889_kwh ?? undefined,
+    'Ring Main #2': row.ring_main_2_kwh ?? undefined,
+    'Ring Main #3': row.ring_main_3_kwh ?? undefined
   }));
 
   const ringMainDivisions = [
@@ -245,13 +270,14 @@ const ElectricityGraphs: React.FC<ElectricityGraphsProps> = ({ data }) => {
   // Add data processing for Libraries breakdown
   const librariesData = data.libraries.map((row: any) => ({
     date: `${row.meter_reading_year}-${row.meter_reading_month}`,
-    'Hocken Library': row.hocken_library_kwh || 0,
-    'UOCOE Robertson': row.robertson_library_kwh || 0,
-    'Bill Robertson': row.bill_robertson_library_msb || 0,
-    'Sayers Adams MSB': row.sayers_adams_msb || 0,
-    'ISB West': row.isb_west_excluding_shops || 0,
-    'Richardson': row.richardson_library_block_rising_main || 0
+    'Hocken Library': row.hocken_library_kwh ?? undefined,
+    'UOCOE Robertson': row.robertson_library_kwh ?? undefined,
+    'Bill Robertson': row.bill_robertson_library_msb ?? undefined,
+    'Sayers Adams MSB': row.sayers_adams_msb ?? undefined,
+    'ISB West': row.isb_west_excluding_shops ?? undefined,
+    'Richardson': row.richardson_library_block_rising_main ?? undefined
   }));
+
 
   const librariesDivisions = [
     { key: 'Hocken Library', color: '#0066cc' },
@@ -291,20 +317,21 @@ const ElectricityGraphs: React.FC<ElectricityGraphsProps> = ({ data }) => {
   // Process data for colleges
   const collegesData = data.colleges.map((row: any) => ({
     date: `${row.meter_reading_year}-${row.meter_reading_month}`,
-    'Castle': row.castle_college_kwh || 0,
-    'Hayward': row.hayward_college_kwh || 0,
-    'Cumberland': row.cumberland_college_kwh || 0,
-    'Executive Residence': row.executive_residence_kwh || 0,
-    'Owheo Building': row.owheo_building_kwh || 0,
-    'St Margarets': row.st_margarets_college_kwh || 0,
-    'Selwyn': row.selwyn_college_kwh || 0,
-    'Arana': row.arana_college_main_kwh || 0,
-    'Studholm': row.studholm_college_kwh || 0,
-    'Carrington': row.carrington_college_kwh || 0,
-    'Aquinas': row.aquinas_college_kwh || 0,
-    'Caroline Freeman': row.caroline_freeman_college_kwh || 0,
-    'Abbey': row.abbey_college_kwh || 0
+    'Castle': row.castle_college_kwh ?? undefined,
+    'Hayward': row.hayward_college_kwh ?? undefined,
+    'Cumberland': row.cumberland_college_kwh ?? undefined,
+    'Executive Residence': row.executive_residence_kwh ?? undefined,
+    'Owheo Building': row.owheo_building_kwh ?? undefined,
+    'St Margarets': row.st_margarets_college_kwh ?? undefined,
+    'Selwyn': row.selwyn_college_kwh ?? undefined,
+    'Arana': row.arana_college_main_kwh ?? undefined,
+    'Studholm': row.studholm_college_kwh ?? undefined,
+    'Carrington': row.carrington_college_kwh ?? undefined,
+    'Aquinas': row.aquinas_college_kwh ?? undefined,
+    'Caroline Freeman': row.caroline_freeman_college_kwh ?? undefined,
+    'Abbey': row.abbey_college_kwh ?? undefined
   }));
+
 
   const collegesDivisions = [
     { key: 'Castle', color: '#1f77b4' },
@@ -352,12 +379,13 @@ const ElectricityGraphs: React.FC<ElectricityGraphsProps> = ({ data }) => {
   // Add data processing for Humanities breakdown
   const humanitiesData = data.humanities.map((row: any) => ({
     date: `${row.meter_reading_year}-${row.meter_reading_month}`,
-    'Education Main': row.education_main_boiler_room_kwh || 0,
-    'Richardson Mains': row.richardson_mains || 0,
-    'Arts 1': row.arts_1_submains_msb || 0,
-    'Albany & Leith Walk': row.albany_leith_walk || 0,
-    'Archway Buildings': row.archway_buildings || 0
+    'Education Main': row.education_main_boiler_room_kwh ?? undefined,
+    'Richardson Mains': row.richardson_mains ?? undefined,
+    'Arts 1': row.arts_1_submains_msb ?? undefined,
+    'Albany & Leith Walk': row.albany_leith_walk ?? undefined,
+    'Archway Buildings': row.archway_buildings ?? undefined
   }));
+
 
   const humanitiesDivisions = [
     { key: 'Education Main', color: '#1f77b4' },

@@ -96,7 +96,7 @@ interface GasAnalysisViewProps {
       <h1 style={styles.title}>Gas Consumption Analysis - Automated Meter</h1>
       
       <div style={styles.description}>
-        Based on the automated meter readings available through November 2024, comprehensive data analysis and visualization have been performed. Missing records were handled through statistical imputation to ensure data continuity and reliability. The following insights are derived from this processed dataset, focusing on consumption patterns, cluster analysis, and anomaly detection.
+        Based on the automated meter readings available through November 2024, comprehensive data analysis and visualization have been performed. Missing records were handled through statistical imputation to ensure data continuity and reliability. The following insights are derived from this processed dataset, focusing on consumption patterns, cluster analysis, and signficant consumption changes.
       </div>
 
       <ClusteringAnalysis 

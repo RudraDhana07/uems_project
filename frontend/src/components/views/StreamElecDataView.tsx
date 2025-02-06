@@ -23,8 +23,8 @@ interface ChartConfig {
       color: string;
     }[];
   }
+  
  
-
   const ringMainsGroups: ColumnGroup[] = [
     {
         title: 'Month',

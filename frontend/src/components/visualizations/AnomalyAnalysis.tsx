@@ -115,7 +115,7 @@ const AnomalyAnalysis: React.FC<AnomalyAnalysisProps> = ({ anomalies, threshold 
   return (
     <div style={styles.container}>
       <h3 style={styles.title}>
-        Gas Consumption Anomalies (Threshold: ±{threshold}%)
+        Gas Consumption Significant Consumption Changes (Threshold: ±{threshold}%)
       </h3>
       <div style={styles.interpretation}>
         <p>Analysis of significant consumption changes (exceeding ±50%) reveals notable patterns across various meter locations:</p>
