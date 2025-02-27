@@ -19,3 +19,7 @@ python-decouple>=3.8
 xgboost>=2.0.0
 lightgbm>=4.1.0
 plotly>=5.18.0
+statsmodels
+pymannkendall
+tslearn
+numba

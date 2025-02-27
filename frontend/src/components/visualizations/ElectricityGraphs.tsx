@@ -75,18 +75,24 @@ const ElectricityGraphs: React.FC<ElectricityGraphsProps> = ({ data }) => {
   }));
 
   const calculateTotals = () => {
+    // Calculate sums for each division based on filtered data
     const totals = {
-      'Ring Mains': data.ringMains?.[0]?.ring_mains_total_kwh || 0,
-      'Libraries': data.libraries?.[0]?.libraries_total_kwh || 0,
-      'Colleges': data.colleges?.[0]?.colleges_total_kwh || 0,
-      'Science': data.science?.[0]?.science_total_kwh || 0,
-      'Health Science': data.healthScience?.[0]?.health_science_total_kwh || 0,
-      'Humanities': data.humanities?.[0]?.humanities_total_kwh || 0
+      'Ring Mains': data.ringMains.reduce((sum, row) => sum + (Number(row.ring_mains_total_kwh) || 0), 0),
+      'Libraries': data.libraries.reduce((sum, row) => sum + (Number(row.libraries_total_kwh) || 0), 0),
+      'Colleges': data.colleges.reduce((sum, row) => sum + (Number(row.colleges_total_kwh) || 0), 0),
+      'Science': data.science.reduce((sum, row) => sum + (Number(row.science_total_kwh) || 0), 0),
+      'Health Science': data.healthScience.reduce((sum, row) => sum + (Number(row.health_science_total_kwh) || 0), 0),
+      'Humanities': data.humanities.reduce((sum, row) => sum + (Number(row.humanities_total_kwh) || 0), 0)
     };
-
+    
+    // Calculate total for percentage calculation
+    const grandTotal = Object.values(totals).reduce((sum, val) => sum + val, 0);
+    
+    // Return formatted data with percentages
     return Object.entries(totals).map(([name, value]) => ({
       name,
-      value: Number(value)
+      value: Number(value),
+      percentage: ((Number(value) / grandTotal) * 100).toFixed(1)
     }));
   };
 
@@ -159,23 +165,21 @@ const ElectricityGraphs: React.FC<ElectricityGraphsProps> = ({ data }) => {
 
   // Add calculation function for Health Science pie chart
   const calculateHealthScienceTotals = () => {
-    // Get the latest data point for pie chart
-    const latestData = data.healthScience?.[0];
-    const total = latestData?.health_science_total_kwh || 0;
-
-    const totals = [
-      { name: 'Taieri Farm', value: latestData?.taieri_farm_kwh || 0 },
-      { name: 'Medical School', value: latestData?.med_school_sub_main_kwh || 0 },
-      { name: 'Dental School', value: latestData?.dental_school_kwh || 0 },
-      { name: 'Hunter Centre', value: latestData?.hunter_centre_kwh || 0 },
-      { name: 'Physiotherapy', value: latestData?.physiotherapy_kwh || 0 },
-      { name: 'Research Support', value: latestData?.research_support_facility_kwh || 0 }
-    ];
-
-    // Calculate percentages based on total
-    return totals.map(item => ({
-      ...item,
-      percentage: ((item.value / total) * 100).toFixed(1)
+    const totals = {
+      'Taieri Farm': data.healthScience.reduce((sum, row) => sum + (Number(row.taieri_farm_kwh) || 0), 0),
+      'Medical School': data.healthScience.reduce((sum, row) => sum + (Number(row.med_school_sub_main_kwh) || 0), 0),
+      'Dental School': data.healthScience.reduce((sum, row) => sum + (Number(row.dental_school_kwh) || 0), 0),
+      'Hunter Centre': data.healthScience.reduce((sum, row) => sum + (Number(row.hunter_centre_kwh) || 0), 0),
+      'Physiotherapy': data.healthScience.reduce((sum, row) => sum + (Number(row.physiotherapy_kwh) || 0), 0),
+      'Research Support': data.healthScience.reduce((sum, row) => sum + (Number(row.research_support_facility_kwh) || 0), 0)
+    };
+    
+    const grandTotal = Object.values(totals).reduce((sum, val) => sum + val, 0);
+    
+    return Object.entries(totals).map(([name, value]) => ({
+      name,
+      value: Number(value),
+      percentage: ((Number(value) / grandTotal) * 100).toFixed(1)
     }));
   };
 
@@ -212,26 +216,26 @@ const ElectricityGraphs: React.FC<ElectricityGraphsProps> = ({ data }) => {
 
   // Add calculation function for Science pie chart
   const calculateScienceTotals = () => {
-    const latestData = data.science?.[0];
-    const total = latestData?.science_total_kwh || 0;
-
-    const totals = [
-      { name: 'Survey Marine', value: latestData?.survey_marine_kwh || 0 },
-      { name: 'Zoology Buildings', value: latestData?.zoology_buildings_kwh || 0 },
-      { name: 'Botany Tin Hut', value: latestData?.botany_tin_hut_kwh || 0 },
-      { name: 'Physical Education', value: latestData?.physical_education_kwh || 0 },
-      { name: 'Owheo Building', value: latestData?.owheo_building_kwh || 0 },
-      { name: 'Mellor Lab', value: latestData?.mellor_laboratories_kwh || 0 },
-      { name: 'Microbiology', value: latestData?.microbiology_kwh || 0 },
-      { name: 'Science 2', value: latestData?.science_2_kwh || 0 },
-      { name: 'Portobello Marine Lab', value: latestData?.portobello_marine_lab_kwh || 0 },
-      { name: 'Geology North', value: latestData?.geology_north || 0 },
-      { name: 'Geology South', value: latestData?.geology_south || 0 }
-    ];
-
-    return totals.map(item => ({
-      ...item,
-      percentage: ((item.value / total) * 100).toFixed(1)
+    const totals = {
+      'Survey Marine': data.science.reduce((sum, row) => sum + (Number(row.survey_marine_kwh) || 0), 0),
+      'Zoology Buildings': data.science.reduce((sum, row) => sum + (Number(row.zoology_buildings_kwh) || 0), 0),
+      'Botany Tin Hut': data.science.reduce((sum, row) => sum + (Number(row.botany_tin_hut_kwh) || 0), 0),
+      'Physical Education': data.science.reduce((sum, row) => sum + (Number(row.physical_education_kwh) || 0), 0),
+      'Owheo Building': data.science.reduce((sum, row) => sum + (Number(row.owheo_building_kwh) || 0), 0),
+      'Mellor Lab': data.science.reduce((sum, row) => sum + (Number(row.mellor_laboratories_kwh) || 0), 0),
+      'Microbiology': data.science.reduce((sum, row) => sum + (Number(row.microbiology_kwh) || 0), 0),
+      'Science 2': data.science.reduce((sum, row) => sum + (Number(row.science_2_kwh) || 0), 0),
+      'Portobello Marine Lab': data.science.reduce((sum, row) => sum + (Number(row.portobello_marine_lab_kwh) || 0), 0),
+      'Geology North': data.science.reduce((sum, row) => sum + (Number(row.geology_north) || 0), 0),
+      'Geology South': data.science.reduce((sum, row) => sum + (Number(row.geology_south) || 0), 0)
+    };
+    
+    const grandTotal = Object.values(totals).reduce((sum, val) => sum + val, 0);
+    
+    return Object.entries(totals).map(([name, value]) => ({
+      name,
+      value: Number(value),
+      percentage: ((Number(value) / grandTotal) * 100).toFixed(1)
     }));
   };
 
@@ -251,18 +255,18 @@ const ElectricityGraphs: React.FC<ElectricityGraphsProps> = ({ data }) => {
 
   // Add calculation function for Ring Mains pie chart
   const calculateRingMainTotals = () => {
-    const latestData = data.ringMains?.[0];
-    const total = latestData?.ring_mains_total_kwh || 0;
-
-    const totals = [
-      { name: 'Ring Main #1', value: latestData?.ring_main_1_mp4889_kwh || 0 },
-      { name: 'Ring Main #2', value: latestData?.ring_main_2_kwh || 0 },
-      { name: 'Ring Main #3', value: latestData?.ring_main_3_kwh || 0 }
-    ];
-
-    return totals.map(item => ({
-      ...item,
-      percentage: ((item.value / total) * 100).toFixed(1)
+    const totals = {
+      'Ring Main #1': data.ringMains.reduce((sum, row) => sum + (Number(row.ring_main_1_mp4889_kwh) || 0), 0),
+      'Ring Main #2': data.ringMains.reduce((sum, row) => sum + (Number(row.ring_main_2_kwh) || 0), 0),
+      'Ring Main #3': data.ringMains.reduce((sum, row) => sum + (Number(row.ring_main_3_kwh) || 0), 0)
+    };
+    
+    const grandTotal = Object.values(totals).reduce((sum, val) => sum + val, 0);
+    
+    return Object.entries(totals).map(([name, value]) => ({
+      name,
+      value: Number(value),
+      percentage: ((Number(value) / grandTotal) * 100).toFixed(1)
     }));
   };
 
@@ -290,21 +294,21 @@ const ElectricityGraphs: React.FC<ElectricityGraphsProps> = ({ data }) => {
 
   // Add calculation function for Libraries pie chart
   const calculateLibrariesTotals = () => {
-    const latestData = data.libraries?.[0];
-    const total = latestData?.libraries_total_kwh || 0;
-
-    const totals = [
-      { name: 'Hocken Library', value: latestData?.hocken_library_kwh || 0 },
-      { name: 'UOCOE Robertson', value: latestData?.robertson_library_kwh || 0 },
-      { name: 'Bill Robertson', value: latestData?.bill_robertson_library_msb || 0 },
-      { name: 'Sayers Adams MSB', value: latestData?.sayers_adams_msb || 0 },
-      { name: 'ISB West', value: latestData?.isb_west_excluding_shops || 0 },
-      { name: 'Richardson', value: latestData?.richardson_library_block_rising_main || 0 }
-    ];
-
-    return totals.map(item => ({
-      ...item,
-      percentage: ((item.value / total) * 100).toFixed(1)
+    const totals = {
+      'Hocken Library': data.libraries.reduce((sum, row) => sum + (Number(row.hocken_library_kwh) || 0), 0),
+      'UOCOE Robertson': data.libraries.reduce((sum, row) => sum + (Number(row.robertson_library_kwh) || 0), 0),
+      'Bill Robertson': data.libraries.reduce((sum, row) => sum + (Number(row.bill_robertson_library_msb) || 0), 0),
+      'Sayers Adams MSB': data.libraries.reduce((sum, row) => sum + (Number(row.sayers_adams_msb) || 0), 0),
+      'ISB West': data.libraries.reduce((sum, row) => sum + (Number(row.isb_west_excluding_shops) || 0), 0),
+      'Richardson': data.libraries.reduce((sum, row) => sum + (Number(row.richardson_library_block_rising_main) || 0), 0)
+    };
+    
+    const grandTotal = Object.values(totals).reduce((sum, val) => sum + val, 0);
+    
+    return Object.entries(totals).map(([name, value]) => ({
+      name,
+      value: Number(value),
+      percentage: ((Number(value) / grandTotal) * 100).toFixed(1)
     }));
   };
 
@@ -904,7 +908,7 @@ const ElectricityGraphs: React.FC<ElectricityGraphsProps> = ({ data }) => {
                   />
                 ))}
               </Pie>
-              <Tooltip formatter={(value: number) => [`${value.toFixed(2)} kWh`, '']} />
+              <Tooltip content={<CustomPieTooltip />} />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
